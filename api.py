@@ -6,18 +6,22 @@ client = OpenAI(
     api_key=os.environ.get("GITHUB_TOKEN"),
 )
 
-def get_response(message, conversation_history):
-    messages = [{"role": "system", "content": "You are a helpful assistant."}]
+SYSTEM_INSTRUCTIONS = """You are a terminal-based AI assistant named Scooby powered by GPT-4O.
+Keep your responses conversational and friendly. Do not use markdown formatting in your
+responses unless specifically asked. Provide clear, readable responses that work well
+in a terminal environment."""
 
-    # Add conversation history
+
+def get_streaming_response(message, conversation_history):
+    messages = [{"role": "system", "content": SYSTEM_INSTRUCTIONS}]
+
     for role, content in conversation_history:
         messages.append({"role": role, "content": content})
 
-    # Add current message
     messages.append({"role": "user", "content": message})
 
-    response = client.chat.completions.create(
+    return client.chat.completions.create(
         messages=messages,
         model="gpt-4o",
+        stream=True
     )
-    return response.choices[0].message.content
