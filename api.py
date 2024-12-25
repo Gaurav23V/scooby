@@ -6,12 +6,18 @@ client = OpenAI(
     api_key=os.environ.get("GITHUB_TOKEN"),
 )
 
-def get_response(message):
+def get_response(message, conversation_history):
+    messages = [{"role": "system", "content": "You are a helpful assistant."}]
+
+    # Add conversation history
+    for role, content in conversation_history:
+        messages.append({"role": role, "content": content})
+
+    # Add current message
+    messages.append({"role": "user", "content": message})
+
     response = client.chat.completions.create(
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": message},
-        ],
+        messages=messages,
         model="gpt-4o",
     )
     return response.choices[0].message.content
